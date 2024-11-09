@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { PropsWithChildren, useState } from "react";
 import {
   Cell,
   Column,
@@ -10,6 +10,7 @@ import {
   TableBody,
   TableHeader,
 } from "react-aria-components";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { MythicalCreature } from "./api";
 import { updateSortPref } from "./table-actions";
@@ -48,38 +49,18 @@ export function MythicalCreaturesTable({ creatures = [], sortBy }: Props) {
       className={styles.table}
     >
       <TableHeader>
-        <Column
-          id="name"
-          isRowHeader
-          allowsSorting
-          className={styles.headerCell}
-        >
-          <div className={styles.headerContent}>Name</div>
-        </Column>
-        <Column
-          id="category"
-          isRowHeader
-          allowsSorting
-          className={styles.headerCell}
-        >
-          <div className={styles.headerContent}>Category</div>
-        </Column>
-        <Column
-          id="origin"
-          isRowHeader
-          allowsSorting
-          className={styles.headerCell}
-        >
-          <div className={styles.headerContent}>Origin</div>
-        </Column>
-        <Column
-          id="power_level"
-          isRowHeader
-          allowsSorting
-          className={styles.headerCell}
-        >
-          <div className={styles.headerContent}>Power level</div>
-        </Column>
+        <HeaderColumn id="name" sortDescriptor={sort}>
+          Name
+        </HeaderColumn>
+        <HeaderColumn id="category" sortDescriptor={sort}>
+          Category
+        </HeaderColumn>
+        <HeaderColumn id="origin" sortDescriptor={sort}>
+          Origin
+        </HeaderColumn>
+        <HeaderColumn id="power_level" sortDescriptor={sort}>
+          Power level
+        </HeaderColumn>
       </TableHeader>
       <TableBody items={sortedCreatures}>
         {(creature) => (
@@ -92,5 +73,25 @@ export function MythicalCreaturesTable({ creatures = [], sortBy }: Props) {
         )}
       </TableBody>
     </Table>
+  );
+}
+
+function HeaderColumn({
+  id,
+  children,
+  sortDescriptor,
+}: PropsWithChildren<{ id: string; sortDescriptor: SortDescriptor }>) {
+  return (
+    <Column id={id} isRowHeader allowsSorting className={styles.headerCell}>
+      <div className={styles.headerContent}>
+        {children}
+        {sortDescriptor.column === id &&
+          (sortDescriptor.direction === "ascending" ? (
+            <ChevronUp className={styles.icon} />
+          ) : (
+            <ChevronDown className={styles.icon} />
+          ))}
+      </div>
+    </Column>
   );
 }
