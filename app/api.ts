@@ -1,5 +1,9 @@
-// app/jokes/page.tsx
 import { supabase } from "./db";
+
+export type SortBy = {
+  id: string;
+  desc: boolean;
+};
 
 export type MythicalCreature = {
   id: string;
@@ -15,17 +19,20 @@ export async function getMythicalCreatures(sortBy = "id") {
     .from("mythical_creatures")
     .select("*")
     .order(sortBy);
-  console.log(data, error);
   if (error) throw error;
   return data as MythicalCreature[];
 }
 
-export async function getSortPref(): Promise<keyof MythicalCreature> {
+export async function getSortPref() {
   const { data, error } = await supabase
     .from("user")
     .select("*")
     .eq("id", 1)
     .single();
   if (error) throw error;
-  return data.sort_pref;
+  const [desc, id] = data.sort_pref.split(",");
+  return {
+    desc: desc === "desc",
+    id: id as string,
+  };
 }
