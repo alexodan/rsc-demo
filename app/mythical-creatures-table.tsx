@@ -1,101 +1,95 @@
 "use client";
 
+import { useState } from "react";
 import {
-  SortingState,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
+  Cell,
+  Column,
+  Row,
+  SortDescriptor,
   Table,
   TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { columns } from "./table-utils";
-import { MythicalCreature, SortBy } from "./api";
+} from "react-aria-components";
+
+import { MythicalCreature } from "./api";
 import { updateSortPref } from "./table-actions";
-import { useState } from "react";
+
+import styles from "./mythical-creatures-table.module.css";
 
 type Props = {
   creatures: MythicalCreature[];
-  sortBy: SortBy;
+  sortBy: SortDescriptor;
 };
 
-const sortableCols = [{ id: "name", desc: false }];
-
 export function MythicalCreaturesTable({ creatures = [], sortBy }: Props) {
-  const [sort, setSort] = useState(sortBy);
-  console.log("...");
+  const [sort, setSort] = useState<SortDescriptor>(sortBy);
 
-  const table = useReactTable({
-    data: creatures,
-    columns,
-    state: {
-      sorting: sortableCols.map((s) =>
-        s.id === sort.id ? sort : s
-      ) as SortingState,
-    },
-    onSortingChange: async (updaterOrValue) => {
-      if (typeof updaterOrValue === "function") {
-        updaterOrValue(
-          sortableCols.map((s) => (s.id === sort.id ? sort : s)) as SortingState
-        );
-      }
-      // causes infinite loop
-      // setSort((prev) => ({ ...prev, desc: !prev.desc }));
-      updateSortPref({
-        desc: !sortBy.desc,
-        id: sortBy.id,
-      });
-    },
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+  const sortedCreatures = [...creatures].sort((a, b) => {
+    if (!sort.column) return 0;
+    const column = sort.column as keyof MythicalCreature;
+    const aValue = a[column];
+    const bValue = b[column];
+
+    const direction = sort.direction === "ascending" ? 1 : -1;
+    if (aValue < bValue) return -1 * direction;
+    if (aValue > bValue) return 1 * direction;
+    return 0;
   });
 
   return (
-    <Table>
-      <TableCaption>A list of mythical creatures</TableCaption>
+    <Table
+      aria-label="Mythical Creatures"
+      selectionMode="single"
+      sortDescriptor={sort}
+      onSortChange={(newSort) => {
+        setSort(newSort);
+        updateSortPref(newSort);
+      }}
+      className={styles.table}
+    >
       <TableHeader>
-        <TableRow>
-          {table.getFlatHeaders().map((header) => (
-            <TableHead
-              key={header.id}
-              onClick={header.column.getToggleSortingHandler()}
-              className={
-                header.column.getCanSort() ? "cursor-pointer select-none" : ""
-              }
-            >
-              {header.isPlaceholder ? null : (
-                <div className="flex items-center gap-2">
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                  {{
-                    asc: " 🔼",
-                    desc: " 🔽",
-                  }[header.column.getIsSorted() as string] ?? null}
-                </div>
-              )}
-            </TableHead>
-          ))}
-        </TableRow>
+        <Column
+          id="name"
+          isRowHeader
+          allowsSorting
+          className={styles.headerCell}
+        >
+          <div className={styles.headerContent}>Name</div>
+        </Column>
+        <Column
+          id="category"
+          isRowHeader
+          allowsSorting
+          className={styles.headerCell}
+        >
+          <div className={styles.headerContent}>Category</div>
+        </Column>
+        <Column
+          id="origin"
+          isRowHeader
+          allowsSorting
+          className={styles.headerCell}
+        >
+          <div className={styles.headerContent}>Origin</div>
+        </Column>
+        <Column
+          id="power_level"
+          isRowHeader
+          allowsSorting
+          className={styles.headerCell}
+        >
+          <div className={styles.headerContent}>Power level</div>
+        </Column>
       </TableHeader>
-      <TableBody>
-        {table.getRowModel().rows.map((row) => (
-          <TableRow key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <TableCell key={cell.id}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </TableCell>
-            ))}
-          </TableRow>
-        ))}
+      <TableBody items={sortedCreatures}>
+        {(creature) => (
+          <Row id={creature.name} className={styles.row}>
+            <Cell className={styles.cell}>{creature.name}</Cell>
+            <Cell className={styles.cell}>{creature.category}</Cell>
+            <Cell className={styles.cell}>{creature.origin}</Cell>
+            <Cell className={styles.cell}>{creature.power_level}</Cell>
+          </Row>
+        )}
       </TableBody>
     </Table>
   );

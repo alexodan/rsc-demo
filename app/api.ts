@@ -1,9 +1,5 @@
+import { SortDescriptor } from "react-aria-components";
 import { supabase } from "./db";
-
-export type SortBy = {
-  id: string;
-  desc: boolean;
-};
 
 export type MythicalCreature = {
   id: string;
@@ -23,16 +19,16 @@ export async function getMythicalCreatures(sortBy = "id") {
   return data as MythicalCreature[];
 }
 
-export async function getSortPref() {
+export async function getSortPref(): Promise<SortDescriptor> {
   const { data, error } = await supabase
     .from("user")
     .select("*")
     .eq("id", 1)
     .single();
   if (error) throw error;
-  const [desc, id] = data.sort_pref.split(",");
+  const [direction, column] = data.sort_pref.split(",");
   return {
-    desc: desc === "desc",
-    id: id as string,
+    direction,
+    column,
   };
 }

@@ -1,0 +1,60 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #e5e7eb;
+}
+
+.headerCell {
+  padding: 12px;
+  text-align: left;
+  font-weight: 500;
+  background-color: #f9fafb;
+  color: #111827;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.headerCell:hover {
+  background-color: #f3f4f6;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.row {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.row:hover {
+  background-color: #f9fafb;
+}
+
+.cell {
+  padding: 12px;
+}
+
+/* Add some rounded corners to the table */
+.table :global(thead tr:first-child th:first-child) {
+  border-top-left-radius: 6px;
+}
+
+.table :global(thead tr:first-child th:last-child) {
+  border-top-right-radius: 6px;
+}
+
+.table :global(tbody tr:last-child td:first-child) {
+  border-bottom-left-radius: 6px;
+}
+
+.table :global(tbody tr:last-child td:last-child) {
+  border-bottom-right-radius: 6px;
+}

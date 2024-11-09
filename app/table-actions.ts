@@ -1,12 +1,13 @@
 "use server";
-import { SortBy } from "./api";
+
+import { SortDescriptor } from "react-aria-components";
 import { supabase } from "./db";
 
-export async function updateSortPref(sortBy: SortBy) {
+export async function updateSortPref(sortBy: SortDescriptor) {
   const { data, error } = await supabase
     .from("user")
     .update(
-      { sort_pref: `${sortBy.desc ? "desc" : "asc"},${sortBy.id}` },
+      { sort_pref: `${sortBy.direction},${sortBy.column}` },
       { count: "exact" }
     )
     .eq("id", 1);
