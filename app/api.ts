@@ -10,11 +10,8 @@ export type MythicalCreature = {
   power_level: number;
 };
 
-export async function getMythicalCreatures(sortBy = "id") {
-  const { data, error } = await supabase
-    .from("mythical_creatures")
-    .select("*")
-    .order(sortBy);
+export async function getMythicalCreatures() {
+  const { data, error } = await supabase.from("mythical_creatures").select("*");
   if (error) throw error;
   return data as MythicalCreature[];
 }
